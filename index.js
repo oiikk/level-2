@@ -1,4 +1,3 @@
-// index.js
 const { Client, GatewayIntentBits } = require("discord.js");
 const mongoose = require("mongoose");
 const { createCanvas, loadImage, registerFont } = require("canvas");
@@ -189,7 +188,7 @@ client.on("messageCreate", async (message) => {
     const ctx = canvas.getContext("2d");
 
     ctx.fillStyle = "#111214";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvasHeight);
     ctx.fillStyle = "#1a1c20";
     ctx.fillRect(20, 20, 760, canvasHeight - 40);
 
@@ -273,6 +272,28 @@ client.on("messageCreate", async (message) => {
 
     const buffer = canvas.toBuffer();
     await message.reply({ files:[{ attachment: buffer, name:"rank.png"}] });
+  }
+
+  // ===== exportlevels =====
+  if (command === "exportlevels") {
+    if (!message.member.permissions.has("Administrator"))
+      return message.reply("❌ ما عندك صلاحية");
+
+    try {
+      const allLevels = await Level.find({}).lean();
+
+      fs.writeFileSync(
+        "./levels_backup.json",
+        JSON.stringify(allLevels, null, 2),
+        "utf8"
+      );
+
+      console.log(`Exported ${allLevels.length} users`);
+      message.reply(`✅ تم تصدير ${allLevels.length} مستخدم إلى ملف levels_backup.json`);
+    } catch (err) {
+      console.error("Export error:", err);
+      message.reply("❌ صار خطأ أثناء تصدير البيانات");
+    }
   }
 });
 
