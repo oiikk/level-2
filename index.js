@@ -281,15 +281,13 @@ client.on("messageCreate", async (message) => {
 
     try {
       const allLevels = await Level.find({}).lean();
+      fs.writeFileSync("./levels_backup.json", JSON.stringify(allLevels, null, 2), "utf8");
 
-      fs.writeFileSync(
-        "./levels_backup.json",
-        JSON.stringify(allLevels, null, 2),
-        "utf8"
-      );
-
-      console.log(`Exported ${allLevels.length} users`);
-      message.reply(`✅ تم تصدير ${allLevels.length} مستخدم إلى ملف levels_backup.json`);
+      // ارسال الملف مباشرة في الديسكورد
+      await message.reply({
+        content: `✅ تم تصدير ${allLevels.length} مستخدم إلى ملف levels_backup.json`,
+        files: [{ attachment: "./levels_backup.json", name: "levels_backup.json" }]
+      });
     } catch (err) {
       console.error("Export error:", err);
       message.reply("❌ صار خطأ أثناء تصدير البيانات");
